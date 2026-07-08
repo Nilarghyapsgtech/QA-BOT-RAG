@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     openai_api_key:str
 
     # Qdrant Cloud Configuration
-    qdrant_url:str
+    qdrant_url:str="http://localhost:6333"
     qdrant_api_key:str
 
     # Collection Settings
