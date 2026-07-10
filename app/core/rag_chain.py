@@ -88,7 +88,7 @@ class RAGChain:
               logger.error("Error in query processes with query {e}")
               raise
          
-    def aquery(self,question:str)->str:
+    async def aquery(self,question:str)->str:
          try:
             answer=self.chain.ainvoke(question)
             logger.info("Async Query processed Successfully")
@@ -96,7 +96,7 @@ class RAGChain:
               logger.error("Error in async query processes with query {e}")
               raise
          
-    def aquery_with_sources(self,question:str)->str:
+    async def aquery_with_sources(self,question:str)->str:
          logger.info(f"Processing async query with sources: {question[:100]}...")
          try:
               answer=self.chain.ainvoke(question)
