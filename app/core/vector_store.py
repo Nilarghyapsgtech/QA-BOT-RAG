@@ -10,7 +10,7 @@ from app.core.embeddings import get_embeddings
 from qdrant_client.http.models import Distance,VectorParams
 from qdrant_client.http.exceptions import UnexpectedResponse
 
-logger=get_logger()
+logger=get_logger(__name__)
 settings=get_settings()
 
 # Embedding Dimensions for text-3-embedding-small
