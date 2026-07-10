@@ -49,3 +49,87 @@ class RAGChain:
             }|self.prompt|self.llm|StrOutputParser()
         )
         logger.info(f"Ragchain initialized with llm={settings.llm_model} and retrievals at a time {settings.retrieval_k}")
+
+    @property
+    def evaluator(self):
+            if self._evaluator is None:
+                from app.core.ragas_evaluation import RAGASEvaluator
+                self._evaluator=RAGASEvaluator
+            return self._evaluator
+    
+    def query(self,question:str)->str:
+         try:
+            answer=self.chain.invoke(question)
+            logger.info("Query processed Successfully")
+         except Exception as e:
+              logger.error("Error in query processes with query {e}")
+              raise
+
+    def query_with_sources(self,question:str)->str:
+         logger.info(f"Processing query with sources: {question[:100]}...")
+         try:
+              answer=self.chain.invoke(question)
+              source_docs=self.retriever.invoke(question)
+
+              sources=[
+                   {
+                    "content":(
+                        doc.page_content[:500]+"..."
+                        if len(doc.page_content)>500
+                        else doc.page_content
+                   ),
+                   "metadata":doc.metadata} for doc in source_docs
+              ]
+              return {
+                   "answer":answer,
+                   "source_docs":sources
+              }
+         except Exception as e:
+              logger.error("Error in query processes with query {e}")
+              raise
+         
+    def aquery(self,question:str)->str:
+         try:
+            answer=self.chain.ainvoke(question)
+            logger.info("Async Query processed Successfully")
+         except Exception as e:
+              logger.error("Error in async query processes with query {e}")
+              raise
+         
+    def aquery_with_sources(self,question:str)->str:
+         logger.info(f"Processing async query with sources: {question[:100]}...")
+         try:
+              answer=self.chain.ainvoke(question)
+              source_docs=self.retriever.invoke(question)
+
+              sources=[
+                   {
+                    "content":(
+                        doc.page_content[:500]+"..."
+                        if len(doc.page_content)>500
+                        else doc.page_content
+                   ),
+                   "metadata":doc.metadata} for doc in source_docs
+              ]
+              return {
+                   "answer":answer,
+                   "source_docs":sources
+              }
+         except Exception as e:
+              logger.error("Error in query processing with sources {e}")
+              raise
+         
+    def stream(self,question:str):
+         logger.info(f"Streaming query:{question[:500]}")
+         try:
+            for chunk in self.chain.stream(question):
+              yield chunk
+         except Exception as e:
+              logger.error(f"Error in streaming response withj exception{e}")
+
+
+    
+
+    
+
+              
