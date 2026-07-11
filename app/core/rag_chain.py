@@ -119,6 +119,33 @@ class RAGChain:
               logger.error("Error in query processing with sources {e}")
               raise
          
+    async def aquery_with_evaluation(self,question:str)->dict:
+         logger.info(f"Processing query with evaluation: {question[:100]} .....")
+         try:
+              result=self.aquery_with_sources(question)
+              answer=result["answer"]
+              sources=result["source_docs"]
+
+              context=[source for source in sources ]
+              try:
+                   evaluation=self.evaluator.aevaluate(question,answer,context)
+                   logger.info(
+                    f"Evaluation completed - "
+                    f"faithfulness={evaluation.get('_faithfulness', 'N/A')}, "
+                    f"answer_relevancy={evaluation.get('_answer_relevancy', 'N/A')}"
+                )
+              except Exception as e:
+                logger.warning(f"Evaluation failed: {e}")
+                evaluation = {
+                    "faithfulness": None,
+                    "answer_relevancy": None,
+                    "evaluation_time_ms": None,
+                    "error": str(e),
+                }
+                return {"answer": answer, "sources": sources, "evaluation": evaluation}
+         except Exception as e:
+             logger.error(f"Error in query evaluation{e}")
+             raise
     def stream(self,question:str):
          logger.info(f"Streaming query:{question[:500]}")
          try:
